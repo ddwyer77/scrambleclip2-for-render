@@ -1,104 +1,144 @@
 #!/bin/bash
 
-# Define service ID - you'll need to replace this with your actual service ID
-# You can find this by running 'render list services' after authenticating
-SERVICE_ID="srv-YOUR_SERVICE_ID_HERE"
+# Find Render CLI
+if command -v /opt/homebrew/bin/render &> /dev/null; then
+    RENDER_CMD="/opt/homebrew/bin/render"
+elif command -v render &> /dev/null; then
+    RENDER_CMD="render"
+else
+    echo "Error: Render CLI not found. Please install it first."
+    echo "Run ./setup-render-cli.sh to install Render CLI"
+    exit 1
+fi
 
-# Define color codes
+# Define colors for better output
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
 RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to display command help
-show_help() {
-  echo -e "${BLUE}Render CLI Helper Commands:${NC}"
-  echo -e "  ${GREEN}deploy${NC}      - Deploy the latest commit to Render"
-  echo -e "  ${GREEN}status${NC}      - Check the deployment status"
-  echo -e "  ${GREEN}logs${NC}        - Stream the service logs"
-  echo -e "  ${GREEN}shell${NC}       - Start an interactive shell in the service"
-  echo -e "  ${GREEN}list${NC}        - List all services in your account"
-  echo -e "  ${GREEN}set-service${NC} - Set the service ID for this project"
-  echo -e "  ${GREEN}help${NC}        - Show this help menu"
-}
+# Service ID - will be set by the set-service function or loaded from .render-service-id
+SERVICE_ID=""
+SERVICE_ID_FILE=".render-service-id"
 
-# Check if the user is authenticated
+# Load service ID if file exists
+if [ -f "$SERVICE_ID_FILE" ]; then
+    SERVICE_ID=$(cat "$SERVICE_ID_FILE")
+fi
+
+# Check if user is authenticated
 check_auth() {
-  render whoami > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Error:${NC} You are not authenticated with Render CLI."
-    echo -e "Please run '${YELLOW}render login${NC}' to authenticate."
-    exit 1
-  fi
+    if ! $RENDER_CMD whoami &> /dev/null; then
+        echo -e "${RED}Error: You are not authenticated with Render CLI.${NC}"
+        echo -e "Please run '${GREEN}$RENDER_CMD login${NC}' to authenticate."
+        exit 1
+    fi
 }
 
-# Set the service ID
-set_service_id() {
-  if [ -z "$1" ]; then
-    echo -e "${YELLOW}Available services:${NC}"
-    render list services
-    echo ""
-    echo -e "Enter the service ID from the list above:"
-    read new_service_id
-  else
-    new_service_id=$1
-  fi
-  
-  # Update the SERVICE_ID variable in this file
-  sed -i '' "s/SERVICE_ID=\"srv-YOUR_SERVICE_ID_HERE\"/SERVICE_ID=\"$new_service_id\"/" "$0"
-  echo -e "${GREEN}Service ID set to:${NC} $new_service_id"
+# Display help message
+help() {
+    echo -e "${BLUE}Render CLI Helper Script${NC}"
+    echo -e "${YELLOW}Usage:${NC} ./render-commands.sh [command]"
+    echo
+    echo -e "${YELLOW}Commands:${NC}"
+    echo -e "  ${GREEN}deploy${NC}        - Deploy the latest changes"
+    echo -e "  ${GREEN}status${NC}        - Check deployment status"
+    echo -e "  ${GREEN}logs${NC}          - Stream logs from the service"
+    echo -e "  ${GREEN}shell${NC}         - Open a shell on the service"
+    echo -e "  ${GREEN}list${NC}          - List all services"
+    echo -e "  ${GREEN}set-service${NC}   - Set the service ID for future commands"
+    echo -e "  ${GREEN}help${NC}          - Display this help message"
+    echo
+    echo -e "${YELLOW}Example:${NC}"
+    echo -e "  ./render-commands.sh deploy"
 }
 
-# Main function to handle commands
-main() {
-  # Check if at least one argument is provided
-  if [ $# -eq 0 ]; then
-    show_help
-    exit 0
-  fi
+# Set service ID
+set_service() {
+    echo -e "${YELLOW}Listing available services...${NC}"
+    $RENDER_CMD list
+    echo
+    echo -e "${YELLOW}Enter the service ID to use:${NC}"
+    read -r service_id
+    echo "$service_id" > "$SERVICE_ID_FILE"
+    SERVICE_ID="$service_id"
+    echo -e "${GREEN}Service ID set to: $SERVICE_ID${NC}"
+}
 
-  # Process the command
-  case "$1" in
+# Check service ID
+check_service_id() {
+    if [ -z "$SERVICE_ID" ]; then
+        echo -e "${YELLOW}No service ID set. Choose a service:${NC}"
+        set_service
+    fi
+}
+
+# Deploy the latest changes
+deploy() {
+    check_auth
+    check_service_id
+    echo -e "${YELLOW}Deploying latest changes to $SERVICE_ID...${NC}"
+    $RENDER_CMD deploy --service "$SERVICE_ID"
+}
+
+# Check deployment status
+status() {
+    check_auth
+    check_service_id
+    echo -e "${YELLOW}Checking status of $SERVICE_ID...${NC}"
+    $RENDER_CMD status --service "$SERVICE_ID"
+}
+
+# Stream logs from the service
+logs() {
+    check_auth
+    check_service_id
+    echo -e "${YELLOW}Streaming logs from $SERVICE_ID...${NC}"
+    $RENDER_CMD logs --service "$SERVICE_ID"
+}
+
+# Open a shell on the service
+shell() {
+    check_auth
+    check_service_id
+    echo -e "${YELLOW}Opening shell on $SERVICE_ID...${NC}"
+    $RENDER_CMD ssh --service "$SERVICE_ID"
+}
+
+# List all services
+list_services() {
+    check_auth
+    echo -e "${YELLOW}Listing all services...${NC}"
+    $RENDER_CMD list
+}
+
+# Parse command line arguments
+case "$1" in
     deploy)
-      check_auth
-      echo -e "${BLUE}Deploying latest commit to Render...${NC}"
-      render deploy --service $SERVICE_ID
-      ;;
+        deploy
+        ;;
     status)
-      check_auth
-      echo -e "${BLUE}Checking deployment status...${NC}"
-      render services info $SERVICE_ID
-      ;;
+        status
+        ;;
     logs)
-      check_auth
-      echo -e "${BLUE}Streaming logs...${NC}"
-      render services logs $SERVICE_ID
-      ;;
+        logs
+        ;;
     shell)
-      check_auth
-      echo -e "${BLUE}Starting interactive shell...${NC}"
-      render services shell $SERVICE_ID
-      ;;
+        shell
+        ;;
     list)
-      check_auth
-      echo -e "${BLUE}Listing all services...${NC}"
-      render list services
-      ;;
+        list_services
+        ;;
     set-service)
-      check_auth
-      set_service_id $2
-      ;;
+        set_service
+        ;;
     help|--help|-h)
-      show_help
-      ;;
+        help
+        ;;
     *)
-      echo -e "${RED}Unknown command:${NC} $1"
-      echo -e "Run '${YELLOW}./render-commands.sh help${NC}' for usage information."
-      exit 1
-      ;;
-  esac
-}
-
-# Execute the main function with all arguments
-main "$@" 
+        echo -e "${RED}Unknown command: $1${NC}"
+        help
+        exit 1
+        ;;
+esac 

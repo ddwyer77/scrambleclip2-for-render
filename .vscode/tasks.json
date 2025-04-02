@@ -2,14 +2,29 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Render: Setup CLI",
+      "type": "shell",
+      "command": "bash ${workspaceFolder}/setup-render-cli.sh",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      }
+    },
+    {
       "label": "Render: Deploy",
       "type": "shell",
-      "command": "./render-commands.sh deploy",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh deploy",
       "presentation": {
         "reveal": "always",
         "panel": "new"
       },
+      "problemMatcher": [],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -18,61 +33,71 @@
     {
       "label": "Render: Status",
       "type": "shell",
-      "command": "./render-commands.sh status",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh status",
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
       }
     },
     {
       "label": "Render: Logs",
       "type": "shell",
-      "command": "./render-commands.sh logs",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh logs",
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
       }
     },
     {
       "label": "Render: Shell",
       "type": "shell",
-      "command": "./render-commands.sh shell",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh shell",
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
       }
     },
     {
       "label": "Render: List Services",
       "type": "shell",
-      "command": "./render-commands.sh list",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh list",
       "presentation": {
         "reveal": "always",
         "panel": "new"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
       }
     },
     {
       "label": "Render: Set Service ID",
       "type": "shell",
-      "command": "./render-commands.sh set-service",
-      "problemMatcher": [],
+      "command": "bash ${workspaceFolder}/render-commands.sh set-service",
       "presentation": {
         "reveal": "always",
         "panel": "new"
-      }
-    },
-    {
-      "label": "Render: Install CLI",
-      "type": "shell",
-      "command": "bash render-cli-setup.sh",
+      },
       "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
+      "group": {
+        "kind": "none",
+        "isDefault": false
       }
     }
   ]
