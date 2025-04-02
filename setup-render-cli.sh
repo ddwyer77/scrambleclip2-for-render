@@ -30,22 +30,22 @@ else
     echo -e "${GREEN}Render CLI installed at: $RENDER_PATH${NC}"
 fi
 
-# Check version
-echo -e "${YELLOW}Render CLI version:${NC}"
-render version || { echo -e "${RED}Failed to get render version${NC}"; exit 1; }
+# Check CLI info
+echo -e "${YELLOW}Render CLI info:${NC}"
+$RENDER_PATH --version
 
 # Perform login
 echo -e "${GREEN}Setup complete!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
-echo -e "1. Run '${GREEN}render login${NC}' to authenticate"
-echo -e "2. After authentication, you can use '${GREEN}render logs${NC}' and other commands"
+echo -e "1. Run '${GREEN}$RENDER_PATH login${NC}' to authenticate"
+echo -e "2. After authentication, you can use '${GREEN}$RENDER_PATH logs${NC}' and other commands"
 echo
 echo -e "${YELLOW}Would you like to authenticate now? (y/n)${NC}"
 read -r answer
 if [[ "$answer" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Opening browser for authentication...${NC}"
-    render login
+    $RENDER_PATH login
     echo -e "${GREEN}Authentication complete. You can now use Render CLI commands.${NC}"
 else
-    echo -e "${YELLOW}Skipping authentication. Remember to run 'render login' before using other commands.${NC}"
+    echo -e "${YELLOW}Skipping authentication. Remember to run '$RENDER_PATH login' before using other commands.${NC}"
 fi 

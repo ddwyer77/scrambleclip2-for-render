@@ -57,7 +57,7 @@ help() {
 # Set service ID
 set_service() {
     echo -e "${YELLOW}Listing available services...${NC}"
-    $RENDER_CMD list
+    $RENDER_CMD services list --output yaml
     echo
     echo -e "${YELLOW}Enter the service ID to use:${NC}"
     read -r service_id
@@ -79,7 +79,7 @@ deploy() {
     check_auth
     check_service_id
     echo -e "${YELLOW}Deploying latest changes to $SERVICE_ID...${NC}"
-    $RENDER_CMD deploy --service "$SERVICE_ID"
+    $RENDER_CMD deploys create --service $SERVICE_ID
 }
 
 # Check deployment status
@@ -87,7 +87,7 @@ status() {
     check_auth
     check_service_id
     echo -e "${YELLOW}Checking status of $SERVICE_ID...${NC}"
-    $RENDER_CMD status --service "$SERVICE_ID"
+    $RENDER_CMD services info $SERVICE_ID
 }
 
 # Stream logs from the service
@@ -95,7 +95,7 @@ logs() {
     check_auth
     check_service_id
     echo -e "${YELLOW}Streaming logs from $SERVICE_ID...${NC}"
-    $RENDER_CMD logs --service "$SERVICE_ID"
+    $RENDER_CMD logs $SERVICE_ID
 }
 
 # Open a shell on the service
@@ -103,14 +103,14 @@ shell() {
     check_auth
     check_service_id
     echo -e "${YELLOW}Opening shell on $SERVICE_ID...${NC}"
-    $RENDER_CMD ssh --service "$SERVICE_ID"
+    $RENDER_CMD ssh $SERVICE_ID
 }
 
 # List all services
 list_services() {
     check_auth
     echo -e "${YELLOW}Listing all services...${NC}"
-    $RENDER_CMD list
+    $RENDER_CMD services list
 }
 
 # Parse command line arguments
