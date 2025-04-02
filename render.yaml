@@ -3,7 +3,7 @@ services:
     name: scrambleclip2
     env: python
     plan: starter
-    buildCommand: pip install -r requirements.txt && apt-get update && cat packages.txt | xargs apt-get install -y
+    buildCommand: pip install -r requirements.txt
     startCommand: streamlit run app.py --server.port $PORT --server.enableCORS false
     envVars:
       - key: PYTHONUNBUFFERED
@@ -12,4 +12,16 @@ services:
         value: /usr/bin/convert
       - key: FFMPEG_BINARY
         value: /usr/bin/ffmpeg
-    healthCheckPath: / 
+    healthCheckPath: /
+    # Use Render's native apt packages support
+    apt:
+      packages:
+        - ffmpeg
+        - libsm6
+        - libxext6
+        - libgl1-mesa-glx
+        - python3-dev
+        - imagemagick
+        - libmagickwand-dev
+        - ghostscript
+        - poppler-utils 
