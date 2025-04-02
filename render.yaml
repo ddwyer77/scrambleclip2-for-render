@@ -3,11 +3,16 @@ services:
     name: scrambleclip2
     env: python
     plan: starter
-    buildCommand: pip install -r requirements.txt
-    startCommand: streamlit run app.py --server.port $PORT --server.enableCORS false
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: |
+      python -m streamlit run app.py --server.port $PORT --server.enableCORS false --server.enableXsrfProtection false
     envVars:
       - key: PYTHONUNBUFFERED
         value: true
+      - key: PYTHONPATH
+        value: /app
       - key: IMAGEMAGICK_BINARY
         value: /usr/bin/convert
       - key: FFMPEG_BINARY

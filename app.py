@@ -9,6 +9,9 @@ from io import StringIO
 import json
 import zipfile
 
+# Add current directory to path to help with imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 # Set page config FIRST - this must be the first Streamlit command
 st.set_page_config(
     page_title="ScrambleClip2 by ClipModeGo",
@@ -37,6 +40,8 @@ st.sidebar.write(f"Platform: {sys.platform}")
 st.sidebar.write(f"Python version: {sys.version.split()[0]}")
 st.sidebar.write(f"ImageMagick path: {IMAGEMAGICK_BINARY}")
 st.sidebar.write(f"ImageMagick exists: {os.path.exists(IMAGEMAGICK_BINARY)}")
+st.sidebar.write(f"Current directory: {os.path.abspath('.')}")
+st.sidebar.write(f"Python path: {sys.path}")
 
 # Try to manually configure MoviePy
 try:
@@ -52,6 +57,7 @@ try:
         st.sidebar.warning(f"ImageMagick binary not found at: {IMAGEMAGICK_BINARY}")
 except Exception as e:
     st.sidebar.warning(f"Could not configure MoviePy: {e}")
+    st.sidebar.warning(f"Traceback: {traceback.format_exc()}")
 
 # Suppress warnings
 import warnings
@@ -231,17 +237,25 @@ if st.button("Generate Scrambled Videos"):
                     ]
                     
                     VideoGenerator = None
+                    last_error = None
                     for path in generator_paths:
                         try:
+                            error_logger.log_error(f"Attempting to import from {path}")
                             module = __import__(path, fromlist=['VideoGenerator'])
                             VideoGenerator = module.VideoGenerator
                             error_logger.log_error(f"Successfully imported VideoGenerator from {path}")
                             break
                         except ImportError as e:
+                            last_error = e
                             error_logger.log_error(f"Failed to import from {path}: {e}")
+                            error_logger.log_error(f"Traceback: {traceback.format_exc()}")
                     
                     if VideoGenerator is None:
-                        raise ImportError("Could not find VideoGenerator in any of the expected modules")
+                        error_traceback = traceback.format_exc() if last_error else "No traceback available"
+                        error_logger.log_error(f"Import paths tried: {generator_paths}")
+                        error_logger.log_error(f"Current sys.path: {sys.path}")
+                        error_logger.log_error(f"Last error traceback: {error_traceback}")
+                        raise ImportError("Could not find VideoGenerator in any of the expected modules. Check the logs for details.")
                     
                     # Generate scrambled videos
                     generator = VideoGenerator(video_paths[0])
