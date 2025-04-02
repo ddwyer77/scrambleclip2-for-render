@@ -1,0 +1,9 @@
+ffmpeg
+libsm6
+libxext6
+libgl1-mesa-glx
+python3-dev
+imagemagick
+libmagickwand-dev
+ghostscript
+poppler-utils 

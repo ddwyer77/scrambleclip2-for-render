@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: scrambleclip2
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt && apt-get update && cat packages.txt | xargs apt-get install -y
+    startCommand: streamlit run app.py --server.port $PORT --server.enableCORS false
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: true
+      - key: IMAGEMAGICK_BINARY
+        value: /usr/bin/convert
+      - key: FFMPEG_BINARY
+        value: /usr/bin/ffmpeg
+    healthCheckPath: / 
