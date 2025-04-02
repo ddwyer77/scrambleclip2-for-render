@@ -34,18 +34,15 @@ fi
 echo -e "${YELLOW}Render CLI info:${NC}"
 $RENDER_PATH --version
 
-# Perform login
+# Provide instructions for authentication
 echo -e "${GREEN}Setup complete!${NC}"
-echo -e "${YELLOW}Next steps:${NC}"
-echo -e "1. Run '${GREEN}$RENDER_PATH login${NC}' to authenticate"
-echo -e "2. After authentication, you can use '${GREEN}$RENDER_PATH logs${NC}' and other commands"
+echo -e "${YELLOW}IMPORTANT: Authentication must be done outside of Cursor${NC}"
+echo -e "1. Open a terminal window outside of Cursor"
+echo -e "2. Run: ${GREEN}$RENDER_PATH login${NC}"
+echo -e "3. Complete the browser authentication"
+echo -e "4. Return to Cursor and use the helper scripts"
 echo
-echo -e "${YELLOW}Would you like to authenticate now? (y/n)${NC}"
-read -r answer
-if [[ "$answer" =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Opening browser for authentication...${NC}"
-    $RENDER_PATH login
-    echo -e "${GREEN}Authentication complete. You can now use Render CLI commands.${NC}"
-else
-    echo -e "${YELLOW}Skipping authentication. Remember to run '$RENDER_PATH login' before using other commands.${NC}"
-fi 
+echo -e "${YELLOW}After authenticating, you can use:${NC}"
+echo -e "- ${GREEN}./render-commands.sh list${NC}"
+echo -e "- ${GREEN}./render-commands.sh logs${NC}"
+echo -e "- ${GREEN}./render-commands.sh deploy${NC}" 
